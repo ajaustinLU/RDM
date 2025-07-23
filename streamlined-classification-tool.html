@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lakehead University - Research Data Classification Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2563eb;
+            --primary-purple: #7c3aed;
+            --success-green: #10b981;
+            --warning-amber: #f59e0b;
+            --danger-red: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Layout */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 100%);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 48rem;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Welcome Screen */
+        .welcome-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .welcome-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 3rem;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--border-color);
+            z-index: -1;
+        }
+
+        .progress-step.completed:not(:last-child)::after {
+            background: var(--success-green);
+        }
+
+        .progress-circle {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active .progress-circle {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            transform: scale(1.2);
+        }
+
+        .progress-step.completed .progress-circle {
+            background: var(--success-green);
+            border-color: var(--success-green);
+        }
+
+        .progress-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-step.active .progress-label {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Question Card */
+        .question-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-number {
+            color: var(--primary-blue);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .question-help {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 0.5rem;
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        /* Options */
+        .options-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            background: var(--bg-dark);
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: var(--primary-blue);
+            transform: translateX(4px);
+        }
+
+        .option.selected {
+            border-color: var(--primary-blue);
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .option.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .option-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .option-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-btn-secondary:hover:not(:disabled) {
+            background: #475569;
+        }
+
+        .nav-btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .nav-btn-primary:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Results Screen */
+        .results-container {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .classification-reveal {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 2px solid var(--border-color);
+        }
+
+        .classification-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .classification-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .classification-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Reasoning Section */
+        .reasoning-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .reasoning-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reasoning-factors {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .factor {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: 0.5rem;
+        }
+
+        .factor-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .factor-content {
+            flex: 1;
+        }
+
+        .factor-label {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .factor-value {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Requirements Card */
+        .requirements-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .requirement-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .requirement-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .requirement-group-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--primary-blue);
+        }
+
+        .requirement-list {
+            list-style: none;
+        }
+
+        .requirement-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .requirement-icon {
+            color: var(--success-green);
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        /* Action Buttons */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-description {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Educational tooltip */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            cursor: help;
+            margin-left: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .question-card {
+                padding: 1.5rem;
+            }
+            
+            .progress-label {
+                display: none;
+            }
+            
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Lakehead University</h1>
+            <p>Research Data Classification Tool</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen">
+                <div class="welcome-card">
+                    <div class="welcome-icon">🔐</div>
+                    <h2 class="welcome-title">Let's Classify Your Research Data</h2>
+                    <p class="welcome-description">
+                        This tool will guide you through a series of questions to determine the appropriate 
+                        security level for your research data. The process takes about 2-3 minutes and will 
+                        help ensure your data is properly protected according to university guidelines.
+                    </p>
+                    <button class="start-btn" onclick="startAssessment()">
+                        Begin Assessment
+                    </button>
+                </div>
+                
+                <div class="reasoning-card">
+                    <h3 class="reasoning-title">
+                        <span>📚</span>
+                        What You'll Learn
+                    </h3>
+                    <div class="requirement-list">
+                        <div class="requirement-item">
+                            <span class="requirement-icon">✓</span>
+                            <span>The security classification level for your data</span>
+                        </div>
+                        <div class="requirement-item">
+                            <span class="requirement-icon">✓</span>
+                            <span>Why your data requires this level of protection</span>
+                        </div>
+                        <div class="requirement-item">
+                            <span class="requirement-icon">✓</span>
+                            <span>Specific security measures you need to implement</span>
+                        </div>
+                        <div class="requirement-item">
+                            <span class="requirement-icon">✓</span>
+                            <span>Next steps and resources for compliance</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assessment Screen -->
+            <div id="assessmentScreen" class="hidden">
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-steps" id="progressSteps">
+                        <!-- Steps will be dynamically inserted -->
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="question-card">
+                    <div class="question-number" id="questionNumber"></div>
+                    <h2 class="question-text" id="questionText"></h2>
+                    <div class="question-help" id="questionHelp"></div>
+                    
+                    <div class="options-grid" id="optionsContainer">
+                        <!-- Options will be dynamically inserted -->
+                    </div>
+                    
+                    <div class="navigation">
+                        <button class="nav-btn nav-btn-secondary" id="backBtn" onclick="navigateBack()">
+                            ← Back
+                        </button>
+                        <button class="nav-btn nav-btn-primary" id="nextBtn" onclick="navigateNext()" disabled>
+                            Continue →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="hidden">
+                <!-- Results will be dynamically inserted -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Question flow - designed to build understanding progressively
+        const questions = [
+            {
+                id: 'participants',
+                title: 'Research Participants',
+                question: 'Does your research involve collecting data from or about people?',
+                help: 'This includes surveys, interviews, observations, medical data, or any information that comes from human participants.',
+                options: [
+                    {
+                        value: 'yes',
+                        label: 'Yes, involves people',
+                        description: 'Data comes from human participants'
+                    },
+                    {
+                        value: 'no',
+                        label: 'No people involved',
+                        description: 'Only documents, systems, or non-human data'
+                    }
+                ]
+            },
+            {
+                id: 'identifiable',
+                title: 'Identifiability',
+                question: 'Could someone identify specific individuals from your data?',
+                help: 'Consider both direct identifiers (names, emails) and combinations of information that could identify someone (age + location + job).',
+                showIf: answers => answers.participants === 'yes',
+                options: [
+                    {
+                        value: 'direct',
+                        label: 'Yes, directly identifiable',
+                        description: 'Contains names, emails, addresses, ID numbers'
+                    },
+                    {
+                        value: 'indirect',
+                        label: 'Possibly, if combined',
+                        description: 'Combination of details might identify someone'
+                    },
+                    {
+                        value: 'no',
+                        label: 'No, fully anonymous',
+                        description: 'Impossible to identify individuals'
+                    }
+                ]
+            },
+            {
+                id: 'sensitivity',
+                title: 'Information Sensitivity',
+                question: 'What type of information are you collecting?',
+                help: 'Some information requires extra protection due to its sensitive nature or potential for harm.',
+                multiSelect: true,
+                options: [
+                    {
+                        value: 'health',
+                        label: 'Health or medical',
+                        description: 'Physical/mental health, diagnoses, treatments'
+                    },
+                    {
+                        value: 'financial',
+                        label: 'Financial',
+                        description: 'Income, banking, credit information'
+                    },
+                    {
+                        value: 'personal',
+                        label: 'Personal/private',
+                        description: 'Sexual orientation, beliefs, behaviors'
+                    },
+                    {
+                        value: 'indigenous',
+                        label: 'Indigenous data',
+                        description: 'First Nations, Inuit, or Métis information'
+                    },
+                    {
+                        value: 'children',
+                        label: 'Children/minors',
+                        description: 'Data about people under 18'
+                    },
+                    {
+                        value: 'location',
+                        label: 'Location tracking',
+                        description: 'GPS, addresses, movement patterns'
+                    },
+                    {
+                        value: 'general',
+                        label: 'General/non-sensitive',
+                        description: 'Opinions, preferences, demographics'
+                    }
+                ]
+            },
+            {
+                id: 'sharing',
+                title: 'Data Sharing',
+                question: 'Who will have access to this data?',
+                help: 'Consider both who needs access now and who might need access in the future.',
+                options: [
+                    {
+                        value: 'team',
+                        label: 'Only my research team',
+                        description: 'Limited to approved team members'
+                    },
+                    {
+                        value: 'university',
+                        label: 'Others at Lakehead',
+                        description: 'Shared with other researchers/departments'
+                    },
+                    {
+                        value: 'external',
+                        label: 'External partners',
+                        description: 'Shared outside the university'
+                    },
+                    {
+                        value: 'public',
+                        label: 'Publicly available',
+                        description: 'Will be published or made open access'
+                    }
+                ]
+            },
+            {
+                id: 'harm',
+                title: 'Potential Impact',
+                question: 'What could happen if this data was accessed without authorization?',
+                help: 'Think about the worst-case scenario - consider impacts on individuals, your research, and the university.',
+                options: [
+                    {
+                        value: 'severe',
+                        label: 'Serious consequences',
+                        description: 'Legal issues, significant harm to individuals, major reputation damage'
+                    },
+                    {
+                        value: 'moderate',
+                        label: 'Moderate impact',
+                        description: 'Privacy concerns, embarrassment, minor setbacks'
+                    },
+                    {
+                        value: 'minimal',
+                        label: 'Minimal impact',
+                        description: 'Little to no harm, already public information'
+                    }
+                ]
+            },
+            {
+                id: 'stage',
+                title: 'Research Stage',
+                question: 'What stage is your research in?',
+                help: 'Different stages may have different security requirements.',
+                options: [
+                    {
+                        value: 'planning',
+                        label: 'Planning/Design',
+                        description: 'Preparing protocols, getting approvals'
+                    },
+                    {
+                        value: 'collection',
+                        label: 'Data Collection',
+                        description: 'Actively gathering data'
+                    },
+                    {
+                        value: 'analysis',
+                        label: 'Analysis',
+                        description: 'Processing and analyzing data'
+                    },
+                    {
+                        value: 'dissemination',
+                        label: 'Dissemination',
+                        description: 'Publishing or sharing results'
+                    }
+                ]
+            }
+        ];
+
+        // State management
+        let currentQuestionIndex = 0;
+        let answers = {};
+        let questionPath = [];
+
+        // Initialize
+        function init() {
+            renderProgressSteps();
+        }
+
+        // Start assessment
+        function startAssessment() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('assessmentScreen').classList.remove('hidden');
+            
+            // Determine first question
+            updateQuestionPath();
+            renderQuestion();
+        }
+
+        // Update question path based on answers
+        function updateQuestionPath() {
+            questionPath = [];
+            for (let q of questions) {
+                if (!q.showIf || q.showIf(answers)) {
+                    questionPath.push(q);
+                }
+            }
+        }
+
+        // Render progress steps
+        function renderProgressSteps() {
+            const container = document.getElementById('progressSteps');
+            const steps = ['Start', 'Context', 'Details', 'Impact', 'Complete'];
+            
+            container.innerHTML = steps.map((step, index) => `
+                <div class="progress-step ${index === 0 ? 'active' : ''}" id="step-${index}">
+                    <div class="progress-circle">${index + 1}</div>
+                    <div class="progress-label">${step}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update progress display
+        function updateProgress() {
+            const totalSteps = 5;
+            const currentStep = Math.min(currentQuestionIndex + 1, totalSteps - 1);
+            
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index < currentStep) {
+                    step.classList.add('completed');
+                } else if (index === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        // Render current question
+        function renderQuestion() {
+            updateProgress();
+            
+            const question = questionPath[currentQuestionIndex];
+            if (!question) {
+                showResults();
+                return;
+            }
+            
+            // Update question display
+            document.getElementById('questionNumber').textContent = 
+                `Question ${currentQuestionIndex + 1} of ${questionPath.length}`;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('questionHelp').textContent = question.help;
+            
+            // Render options
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            question.options.forEach(option => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                
+                // Check if selected
+                const isSelected = question.multiSelect
+                    ? (answers[question.id] || []).includes(option.value)
+                    : answers[question.id] === option.value;
+                
+                if (isSelected) {
+                    optionEl.classList.add('selected');
+                }
+                
+                optionEl.innerHTML = `
+                    <div class="option-title">${option.label}</div>
+                    <div class="option-description">${option.description}</div>
+                `;
+                
+                optionEl.onclick = () => selectOption(question, option.value);
+                container.appendChild(optionEl);
+            });
+            
+            // Update navigation
+            updateNavigation();
+        }
+
+        // Handle option selection
+        function selectOption(question, value) {
+            if (question.multiSelect) {
+                const current = answers[question.id] || [];
+                if (value === 'general' && !current.includes('general')) {
+                    // If selecting "general", clear other options
+                    answers[question.id] = ['general'];
+                } else if (current.includes('general') && value !== 'general') {
+                    // If "general" is selected and selecting something else, remove "general"
+                    answers[question.id] = [value];
+                } else if (current.includes(value)) {
+                    // Deselect
+                    answers[question.id] = current.filter(v => v !== value);
+                } else {
+                    // Select
+                    answers[question.id] = [...current, value];
+                }
+            } else {
+                answers[question.id] = value;
+            }
+            
+            // Re-render to show selection
+            renderQuestion();
+        }
+
+        // Update navigation buttons
+        function updateNavigation() {
+            const backBtn = document.getElementById('backBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const question = questionPath[currentQuestionIndex];
+            
+            // Back button
+            backBtn.disabled = currentQuestionIndex === 0;
+            
+            // Next button
+            const hasAnswer = question.multiSelect
+                ? (answers[question.id] && answers[question.id].length > 0)
+                : answers[question.id] !== undefined;
+            
+            nextBtn.disabled = !hasAnswer;
+            
+            // Update text for last question
+            if (currentQuestionIndex === questionPath.length - 1) {
+                nextBtn.innerHTML = 'See Results →';
+            } else {
+                nextBtn.innerHTML = 'Continue →';
+            }
+        }
+
+        // Navigate back
+        function navigateBack() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        // Navigate next
+        function navigateNext() {
+            if (currentQuestionIndex < questionPath.length - 1) {
+                currentQuestionIndex++;
+                updateQuestionPath(); // Re-evaluate path in case answers changed flow
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Calculate classification
+        function calculateClassification() {
+            const factors = {
+                level: 'public',
+                reasons: [],
+                score: 0
+            };
+            
+            // Check for direct identifiers
+            if (answers.identifiable === 'direct') {
+                factors.level = 'confidential';
+                factors.reasons.push({
+                    icon: '🔴',
+                    factor: 'Direct Identifiers',
+                    detail: 'Contains information that directly identifies individuals',
+                    weight: 3
+                });
+                factors.score += 3;
+            }
+            
+            // Check for sensitive information
+            const sensitiveTypes = ['health', 'financial', 'personal', 'indigenous', 'children'];
+            const hasSensitive = answers.sensitivity && 
+                answers.sensitivity.some(s => sensitiveTypes.includes(s));
+            
+            if (hasSensitive) {
+                factors.level = 'confidential';
+                factors.reasons.push({
+                    icon: '🔴',
+                    factor: 'Sensitive Information',
+                    detail: 'Contains health, financial, or other sensitive data',
+                    weight: 3
+                });
+                factors.score += 3;
+            }
+            
+            // Check for indirect identifiers
+            if (answers.identifiable === 'indirect' && factors.level !== 'confidential') {
+                factors.level = 'internal';
+                factors.reasons.push({
+                    icon: '🟡',
+                    factor: 'Indirect Identifiers',
+                    detail: 'Combination of data could potentially identify individuals',
+                    weight: 2
+                });
+                factors.score += 2;
+            }
+            
+            // Check sharing scope
+            if (answers.sharing === 'external' && factors.level !== 'confidential') {
+                factors.level = 'internal';
+                factors.reasons.push({
+                    icon: '🟡',
+                    factor: 'External Sharing',
+                    detail: 'Data will be shared outside the university',
+                    weight: 2
+                });
+                factors.score += 2;
+            }
+            
+            // Check harm level
+            if (answers.harm === 'severe') {
+                factors.level = 'confidential';
+                factors.reasons.push({
+                    icon: '🔴',
+                    factor: 'High Risk',
+                    detail: 'Unauthorized access could cause serious harm',
+                    weight: 3
+                });
+                factors.score += 3;
+            }
+            
+            // If no concerning factors, check if it's truly public
+            if (factors.reasons.length === 0) {
+                if (answers.participants === 'no' || answers.sharing === 'public') {
+                    factors.reasons.push({
+                        icon: '🟢',
+                        factor: 'Low Risk Data',
+                        detail: 'No personal information or already intended for public use',
+                        weight: 0
+                    });
+                } else {
+                    factors.level = 'internal';
+                    factors.reasons.push({
+                        icon: '🟡',
+                        factor: 'Research Data',
+                        detail: 'Standard research data requiring basic protections',
+                        weight: 1
+                    });
+                    factors.score += 1;
+                }
+            }
+            
+            return factors;
+        }
+
+        // Show results
+        function showResults() {
+            const classification = calculateClassification();
+            
+            document.getElementById('assessmentScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            
+            // Update progress to show completion
+            document.querySelectorAll('.progress-step').forEach(step => {
+                step.classList.remove('active');
+                step.classList.add('completed');
+            });
+            
+            const levelDetails = {
+                confidential: {
+                    title: 'Confidential / Sensitive',
+                    icon: '🔒',
+                    color: '#ef4444',
+                    description: 'Highest protection level required',
+                    requirements: {
+                        immediate: [
+                            'Obtain explicit consent from participants',
+                            'Enable encryption on all devices storing this data',
+                            'Restrict access to authorized team members only',
+                            'Use secure file transfer (not email) for sharing'
+                        ],
+                        ongoing: [
+                            'Conduct quarterly access reviews',
+                            'Maintain audit logs of all data access',
+                            'Store physical documents in locked cabinets',
+                            'Complete data sharing agreements before external sharing'
+                        ],
+                        disposal: [
+                            'Shred physical documents',
+                            'Use secure deletion for electronic files',
+                            'Obtain certificate of destruction if using third party'
+                        ]
+                    }
+                },
+                internal: {
+                    title: 'Internal / Private',
+                    icon: '🛡️',
+                    color: '#3b82f6',
+                    description: 'Moderate protection for research use',
+                    requirements: {
+                        immediate: [
+                            'Store on university-approved systems only',
+                            'Obtain Principal Investigator approval for access',
+                            'Use university email with disclaimers for sharing',
+                            'Implement access controls on shared drives'
+                        ],
+                        ongoing: [
+                            'Review access permissions regularly',
+                            'Backup data according to IT policies',
+                            'Document who has access to the data',
+                            'Train team members on data handling'
+                        ],
+                        disposal: [
+                            'Shred or secure recycle physical documents',
+                            'Delete electronic files after retention period',
+                            'Clear data from all backup locations'
+                        ]
+                    }
+                },
+                public: {
+                    title: 'Public',
+                    icon: '🌐',
+                    color: '#10b981',
+                    description: 'Minimal restrictions - can be freely shared',
+                    requirements: {
+                        immediate: [
+                            'Confirm no personal identifiers are present',
+                            'Document the public nature of the data',
+                            'No special storage requirements',
+                            'Can use standard communication methods'
+                        ],
+                        ongoing: [
+                            'Maintain good research practices',
+                            'Keep data organized and documented',
+                            'No special access controls required',
+                            'Follow general university policies'
+                        ],
+                        disposal: [
+                            'Standard disposal methods acceptable',
+                            'Follow retention schedule if applicable',
+                            'No special destruction requirements'
+                        ]
+                    }
+                }
+            };
+            
+            const level = levelDetails[classification.level];
+            
+            let resultsHTML = `
+                <div class="results-container">
+                    <!-- Classification Reveal -->
+                    <div class="classification-reveal">
+                        <div class="classification-icon" style="color: ${level.color};">
+                            ${level.icon}
+                        </div>
+                        <h2 class="classification-title" style="color: ${level.color};">
+                            ${level.title}
+                        </h2>
+                        <p class="classification-subtitle">
+                            ${level.description}
+                        </p>
+                    </div>
+                    
+                    <!-- Why This Classification -->
+                    <div class="reasoning-card">
+                        <h3 class="reasoning-title">
+                            <span>🎯</span>
+                            Why This Classification?
+                        </h3>
+                        <div class="reasoning-factors">
+                            ${classification.reasons.map(reason => `
+                                <div class="factor">
+                                    <div class="factor-icon">${reason.icon}</div>
+                                    <div class="factor-content">
+                                        <div class="factor-label">${reason.factor}</div>
+                                        <div class="factor-value">${reason.detail}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <!-- Requirements -->
+                    <div class="requirements-card">
+                        <h3 class="reasoning-title">
+                            <span>📋</span>
+                            Required Security Measures
+                        </h3>
+                        
+                        <div class="requirement-group">
+                            <div class="requirement-group-title">Immediate Actions</div>
+                            <ul class="requirement-list">
+                                ${level.requirements.immediate.map(req => `
+                                    <li class="requirement-item">
+                                        <span class="requirement-icon">✓</span>
+                                        <span>${req}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="requirement-group">
+                            <div class="requirement-group-title">Ongoing Requirements</div>
+                            <ul class="requirement-list">
+                                ${level.requirements.ongoing.map(req => `
+                                    <li class="requirement-item">
+                                        <span class="requirement-icon">✓</span>
+                                        <span>${req}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="requirement-group">
+                            <div class="requirement-group-title">Data Disposal</div>
+                            <ul class="requirement-list">
+                                ${level.requirements.disposal.map(req => `
+                                    <li class="requirement-item">
+                                        <span class="requirement-icon">✓</span>
+                                        <span>${req}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="action-grid">
+                        <div class="action-btn" onclick="downloadReport('${classification.level}')">
+                            <div class="action-icon">📄</div>
+                            <div class="action-title">Download Report</div>
+                            <div class="action-description">Get a detailed PDF</div>
+                        </div>
+                        <div class="action-btn" onclick="printResults()">
+                            <div class="action-icon">🖨️</div>
+                            <div class="action-title">Print Summary</div>
+                            <div class="action-description">Quick reference</div>
+                        </div>
+                        <div class="action-btn" onclick="contactSupport()">
+                            <div class="action-icon">💬</div>
+                            <div class="action-title">Get Help</div>
+                            <div class="action-description">Contact support</div>
+                        </div>
+                        <div class="action-btn" onclick="startOver()">
+                            <div class="action-icon">🔄</div>
+                            <div class="action-title">Start Over</div>
+                            <div class="action-description">New assessment</div>
+                        </div>
+                    </div>
+                    
+                    ${classification.level === 'confidential' ? `
+                        <div class="reasoning-card mt-4" style="border-color: var(--warning-amber);">
+                            <h3 class="reasoning-title" style="color: var(--warning-amber);">
+                                <span>⚠️</span>
+                                Important Notice
+                            </h3>
+                            <p>
+                                Your data requires the highest level of protection. Please contact the 
+                                Office of Research Services immediately for guidance on implementing 
+                                these security measures and to obtain necessary agreements.
+                            </p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('resultsScreen').innerHTML = resultsHTML;
+        }
+
+        // Action handlers
+        function downloadReport(level) {
+            const assessment = {
+                date: new Date().toISOString(),
+                classification: level,
+                answers: answers,
+                factors: calculateClassification()
+            };
+            
+            let report = `LAKEHEAD UNIVERSITY RESEARCH DATA CLASSIFICATION REPORT\n`;
+            report += `${'='.repeat(60)}\n\n`;
+            report += `Date: ${new Date().toLocaleDateString()}\n`;
+            report += `Time: ${new Date().toLocaleTimeString()}\n\n`;
+            
+            report += `CLASSIFICATION RESULT: ${level.toUpperCase()}\n`;
+            report += `${'='.repeat(60)}\n\n`;
+            
+            report += `ASSESSMENT DETAILS:\n`;
+            report += `${'-'.repeat(60)}\n`;
+            
+            // Add questions and answers
+            questionPath.forEach((q, idx) => {
+                report += `\n${idx + 1}. ${q.question}\n`;
+                const answer = answers[q.id];
+                if (Array.isArray(answer)) {
+                    answer.forEach(a => {
+                        const option = q.options.find(o => o.value === a);
+                        report += `   ✓ ${option.label}\n`;
+                    });
+                } else {
+                    const option = q.options.find(o => o.value === answer);
+                    report += `   → ${option ? option.label : 'Not answered'}\n`;
+                }
+            });
+            
+            report += `\n${'='.repeat(60)}\n`;
+            report += `\nFor implementation guidance, contact:\n`;
+            report += `Office of Research Services\n`;
+            report += `Email: research@lakeheadu.ca\n`;
+            report += `Phone: (807) 343-8010 ext. 8223\n`;
+            
+            // Create download
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `LU_Data_Classification_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function printResults() {
+            window.print();
+        }
+
+        function contactSupport() {
+            window.open('https://www.lakeheadu.ca/research-and-innovation/research-services', '_blank');
+        }
+
+        function startOver() {
+            // Reset state
+            currentQuestionIndex = 0;
+            answers = {};
+            questionPath = [];
+            
+            // Reset UI
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('assessmentScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            
+            // Reset progress
+            renderProgressSteps();
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
