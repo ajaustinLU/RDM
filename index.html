@@ -203,30 +203,80 @@
             padding: 2.5rem;
             border: 1px solid var(--border-color);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
 
-        .question-number {
-            color: var(--primary-gold);
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        .question-card.fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .question-title-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .question-text {
             font-size: 1.5rem;
             font-weight: 600;
-            margin-bottom: 1rem;
             line-height: 1.4;
+            margin: 0;
+        }
+        
+        /* Tooltip Styles */
+        .tooltip-container {
+            position: relative;
+            display: inline-flex;
         }
 
-        .question-help {
+        .info-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            color: var(--primary-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--bg-recap);
             color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
+            text-align: left;
             border-radius: 0.5rem;
-            border-left: 3px solid var(--primary-gold);
+            padding: 1rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--bg-recap) transparent transparent transparent;
+        }
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
         }
 
         /* Options */
@@ -521,13 +571,19 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            flex: 0 1 220px; /* Flex properties for better control */
+            flex: 0 1 220px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .action-btn:hover {
             border-color: var(--primary-gold);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(255, 195, 15, 0.2);
+        }
+
+        .action-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
         .action-icon {
@@ -710,8 +766,13 @@
                 <!-- Question Card -->
                 <div class="question-card">
                     <div class="question-number" id="questionNumber"></div>
-                    <h2 class="question-text" id="questionText"></h2>
-                    <div class="question-help" id="questionHelp"></div>
+                    <div class="question-title-container">
+                        <h2 class="question-text" id="questionText"></h2>
+                        <div class="tooltip-container">
+                            <span class="info-icon">i</span>
+                            <span class="tooltip-text" id="questionHelp"></span>
+                        </div>
+                    </div>
                     
                     <div class="options-grid" id="optionsContainer">
                         <!-- Options will be dynamically inserted -->
@@ -958,37 +1019,43 @@
                 return;
             }
             
-            renderProgressSteps(); // Re-render in case path changed
-            updateProgress();
-            
-            const question = questionPath[currentQuestionIndex];
-            
-            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1} of ${questionPath.length}`;
-            document.getElementById('questionText').textContent = question.question;
-            document.getElementById('questionHelp').innerHTML = question.help;
-            
-            const container = document.getElementById('optionsContainer');
-            container.innerHTML = '';
-            question.options.forEach(option => {
-                const optionEl = document.createElement('div');
-                optionEl.className = 'option';
+            const questionCard = document.querySelector('.question-card');
+            questionCard.classList.add('fade-out');
+
+            setTimeout(() => {
+                renderProgressSteps(); // Re-render in case path changed
+                updateProgress();
                 
-                const isSelected = question.multiSelect
-                    ? (answers[question.id] || []).includes(option.value)
-                    : answers[question.id] === option.value;
+                const question = questionPath[currentQuestionIndex];
                 
-                if (isSelected) optionEl.classList.add('selected');
+                document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1} of ${questionPath.length}`;
+                document.getElementById('questionText').textContent = question.question;
+                document.getElementById('questionHelp').textContent = question.help;
                 
-                optionEl.innerHTML = `
-                    <div class="option-title">${option.label}</div>
-                    <div class="option-description">${option.description}</div>
-                `;
-                optionEl.onclick = () => selectOption(question, option.value);
-                container.appendChild(optionEl);
-            });
-            
-            updateNavigation();
-            renderRecap();
+                const container = document.getElementById('optionsContainer');
+                container.innerHTML = '';
+                question.options.forEach(option => {
+                    const optionEl = document.createElement('div');
+                    optionEl.className = 'option';
+                    
+                    const isSelected = question.multiSelect
+                        ? (answers[question.id] || []).includes(option.value)
+                        : answers[question.id] === option.value;
+                    
+                    if (isSelected) optionEl.classList.add('selected');
+                    
+                    optionEl.innerHTML = `
+                        <div class="option-title">${option.label}</div>
+                        <div class="option-description">${option.description}</div>
+                    `;
+                    optionEl.onclick = () => selectOption(question, option.value);
+                    container.appendChild(optionEl);
+                });
+                
+                updateNavigation();
+                renderRecap();
+                questionCard.classList.remove('fade-out');
+            }, 300);
         }
 
         function renderRecap() {
@@ -1045,7 +1112,25 @@
                 answers[question.id] = value;
             }
             
-            renderQuestion(); // Re-render to show selection feedback
+            // Re-render only options to show selection feedback immediately
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+             question.options.forEach(option => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                const isSelected = question.multiSelect
+                    ? (answers[question.id] || []).includes(option.value)
+                    : answers[question.id] === option.value;
+                if (isSelected) optionEl.classList.add('selected');
+                optionEl.innerHTML = `
+                    <div class="option-title">${option.label}</div>
+                    <div class="option-description">${option.description}</div>
+                `;
+                optionEl.onclick = () => selectOption(question, option.value);
+                container.appendChild(optionEl);
+            });
+            updateNavigation();
+
 
             // Auto-advance for single-choice questions
             if (!question.multiSelect) {
