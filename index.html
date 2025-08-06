@@ -544,6 +544,10 @@
             font-size: 0.75rem;
             color: var(--text-secondary);
         }
+        
+        .print-header {
+            display: none;
+        }
 
         /* Utilities */
         .hidden {
@@ -597,6 +601,22 @@
             .action-grid, .header {
                 display: none !important;
             }
+            .print-header {
+                display: block;
+                visibility: visible;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            .print-header h1, .print-header p {
+                visibility: visible;
+                color: #000 !important;
+            }
+            .print-header h1 {
+                font-size: 18pt;
+            }
+            .print-header p {
+                font-size: 12pt;
+            }
             .results-container {
                 animation: none;
             }
@@ -621,8 +641,8 @@
             .classification-reveal {
                 border-top: 5px solid #ccc !important;
             }
-             .classification-icon, .factor-icon, .requirement-icon {
-                color: #333 !important;
+             .classification-icon, .factor-icon, .requirement-icon, .reasoning-title span {
+                display: none !important;
             }
         }
     </style>
@@ -1087,7 +1107,7 @@
             const hasSensitive = answers.sensitivity && answers.sensitivity.some(s => sensitiveTypes.includes(s));
             if (hasSensitive) {
                 factors.score += 3;
-                factors.reasons.push({ icon: '�', factor: 'Sensitive Information', detail: 'Contains highly personal data such as health, financial, or information about minors.' });
+                factors.reasons.push({ icon: '🔴', factor: 'Sensitive Information', detail: 'Contains highly personal data such as health, financial, or information about minors.' });
             }
             
             if (answers.identifiable === 'direct') {
@@ -1122,12 +1142,17 @@
             const level = classificationDetails[classification.level];
             
             document.getElementById('assessmentScreen').classList.add('hidden');
-            document.getElementById('resultsScreen').classList.remove('hidden');
+            const resultsScreen = document.getElementById('resultsScreen');
+            resultsScreen.classList.remove('hidden');
             
             document.querySelectorAll('.progress-step').forEach(step => step.classList.add('completed'));
             document.getElementById('progressBarFill').style.width = `100%`;
             
             let resultsHTML = `
+                <div class="print-header">
+                    <h1>Data Classification Summary</h1>
+                    <p>Lakehead University</p>
+                </div>
                 <div class="results-container">
                     <div class="classification-reveal" style="border-top: 5px solid ${level.colour};">
                         <div class="classification-icon">${level.icon}</div>
@@ -1192,7 +1217,7 @@
                 </div>
             `;
             
-            document.getElementById('resultsScreen').innerHTML = resultsHTML;
+            resultsScreen.innerHTML = resultsHTML;
         }
 
         // --- ACTION HANDLERS ---
@@ -1332,4 +1357,3 @@
     </script>
 </body>
 </html>
-�
