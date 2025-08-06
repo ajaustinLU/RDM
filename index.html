@@ -455,7 +455,6 @@
         }
 
         .classification-subtitle {
-            color: var(--text-secondary);
             font-size: 1.125rem;
             margin-bottom: 2rem;
         }
@@ -890,7 +889,8 @@
             confidential: {
                 title: 'Confidential / Sensitive',
                 icon: '🔒',
-                colour: 'rgb(200,30,35)',
+                bgColour: 'var(--primary-red)',
+                textColour: 'white',
                 description: 'Highest protection level required',
                 requirements: {
                     'Immediate Actions': [
@@ -915,7 +915,8 @@
             internal: {
                 title: 'Internal / Private',
                 icon: '🛡️',
-                colour: 'rgb(0,65,125)',
+                bgColour: 'var(--primary-gold)',
+                textColour: 'var(--primary-blue)',
                 description: 'Moderate protection for research use',
                 requirements: {
                     'Immediate Actions': [
@@ -940,7 +941,8 @@
             public: {
                 title: 'Public',
                 icon: '🌐',
-                colour: '#10b981',
+                bgColour: 'var(--success-green)',
+                textColour: 'white',
                 description: 'Minimal restrictions - can be freely shared',
                 requirements: {
                     'Immediate Actions': [
@@ -1239,10 +1241,10 @@
                     <p>Lakehead University</p>
                 </div>
                 <div class="results-container">
-                    <div class="classification-reveal" style="border-top: 5px solid ${level.colour};">
-                        <div class="classification-icon">${level.icon}</div>
-                        <h2 class="classification-title" style="color: ${level.colour};">${level.title}</h2>
-                        <p class="classification-subtitle">${level.description}</p>
+                    <div class="classification-reveal" style="background-color: ${level.bgColour}; border-color: ${level.bgColour};">
+                        <div class="classification-icon" style="color: ${level.textColour};">${level.icon}</div>
+                        <h2 class="classification-title" style="color: ${level.textColour};">${level.title}</h2>
+                        <p class="classification-subtitle" style="color: ${level.textColour}; opacity: 0.9;">${level.description}</p>
                     </div>
                     
                     <div class="reasoning-card">
@@ -1332,7 +1334,7 @@
                 startY: 35,
                 body: [[{
                     content: `Classification Result: ${level.title}`,
-                    styles: { halign: 'center', fontSize: 14, fontStyle: 'bold', fillColor: level.colour, textColor: '#ffffff' }
+                    styles: { halign: 'center', fontSize: 14, fontStyle: 'bold', fillColor: level.bgColour, textColor: level.textColour === 'white' ? [255,255,255] : [0,65,125] }
                 }]],
                 theme: 'plain'
             });
