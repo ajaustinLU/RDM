@@ -577,6 +577,9 @@
 
         /* Print Styles */
         @media print {
+            body {
+                background-color: white !important;
+            }
             body * {
                 visibility: hidden;
             }
@@ -604,6 +607,10 @@
                 color: black !important;
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
+            }
+            .factor {
+                background: transparent !important;
+                border: 1px solid #ddd !important;
             }
             .classification-title, .reasoning-title, .requirement-group-title, .factor-label {
                 color: black !important;
@@ -1080,7 +1087,7 @@
             const hasSensitive = answers.sensitivity && answers.sensitivity.some(s => sensitiveTypes.includes(s));
             if (hasSensitive) {
                 factors.score += 3;
-                factors.reasons.push({ icon: '🔴', factor: 'Sensitive Information', detail: 'Contains highly personal data such as health, financial, or information about minors.' });
+                factors.reasons.push({ icon: '�', factor: 'Sensitive Information', detail: 'Contains highly personal data such as health, financial, or information about minors.' });
             }
             
             if (answers.identifiable === 'direct') {
@@ -1325,3 +1332,4 @@
     </script>
 </body>
 </html>
+�
